@@ -58,11 +58,22 @@ language: zh-CN
 
 要装上`hexo-deployer-git`，然后修改`_config.yml`
 
+Github page有两种模式，一种是建`username.github.io`的repo，然后部署到`master`分支
+
 ```yaml
 deploy:
   type: git
   repository: git@github.com:ekibun/ekibun.github.io.git
   branch: master
+```
+
+还有一种是发布到repo的`gh-pages`分支：
+
+```yaml
+deploy:
+  type: git
+  repository: git@github.com:ekibun/ekibook.git
+  branch: gh-pages
 ```
 
 #### 保存本地图片

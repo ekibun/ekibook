@@ -147,3 +147,12 @@ busuanzi_count:
 
 装上插件`hexo-symbols-count-time`直接生效
 
+#### 站点地图
+
+需要` hexo-generator-sitemap`和`hexo-generator-baidu-sitemap`，但是我没感觉它们生成的东西有什么不同，另外，`hexo-generator-baidu-sitemap`对`root`不是根目录的支持不好，需要重新指定url：
+
+```yaml
+baidusitemap:
+  url: https://ekibun.github.io
+```
+

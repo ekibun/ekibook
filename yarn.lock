@@ -462,7 +462,7 @@ chalk@^3.0.0:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
 
-cheerio@^1.0.0-rc.2:
+cheerio@^1.0.0-rc.2, cheerio@^1.0.0-rc.3:
   version "1.0.0-rc.3"
   resolved "https://registry.npm.taobao.org/cheerio/download/cheerio-1.0.0-rc.3.tgz#094636d425b2e9c0f4eb91a46c05630c9a1a8bf6"
   integrity sha1-CUY21CWy6cD065GkbAVjDJoai/Y=
@@ -1451,10 +1451,10 @@ hexo-deployer-git@^2.1.0:
     moment "^2.18.0"
     swig-templates "^2.0.2"
 
-hexo-filter-emoji@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.npm.taobao.org/hexo-filter-emoji/download/hexo-filter-emoji-2.1.1.tgz#3c9167a309ae87a12adf76cd23a65becd0816540"
-  integrity sha1-PJFnowmuh6Eq33bNI6Zb7NCBZUA=
+hexo-filter-emoji@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.npm.taobao.org/hexo-filter-emoji/download/hexo-filter-emoji-2.2.1.tgz#19d46307293744177a2e125492e6c146bd2fa794"
+  integrity sha1-GdRjByk3RBd6LhJUkubBRr0vp5Q=
   dependencies:
     lodash "4.17.15"
     random-ua "0.0.6"

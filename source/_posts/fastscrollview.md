@@ -16,7 +16,7 @@ mathjax: true
 
 画个示意图：
 
-![](fastscrollview/draft.svg)
+![fig1](fastscrollview/fig1.gif)
 
 首先，通过两个回调函数获取关联滚动的高度和关联滚动的距离
 

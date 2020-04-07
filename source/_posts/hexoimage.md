@@ -65,4 +65,4 @@ hexo.extend.filter.register('after_post_render', function(data){
 - `../`开头的会定位到上一级目录，也就是`source`文件夹，替换为`config.root`
 - 其他的全认为是相对当前文件的地址，用帖子路径去替换和标题相同的第一个文件夹，
 
-要注意的是如果开了`NexT`主题的`lazyload`，`content`里`<img>`的`src`会变成`data-src`，因此要同时检查`data-src`属性。
+要注意的是如果开了`NexT`主题的`lazyload`，`content`里`&lt;img&gt;`的`src`会变成`data-src`，因此要同时检查`data-src`属性。

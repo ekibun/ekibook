@@ -13,18 +13,13 @@ timezone: ''
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: https://ekibun.github.io/ekibook
+url: https://ekibun.gitee.io/ekibook
 root: /ekibook/
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:
   trailing_index: true # Set to false to remove trailing 'index.html' from permalinks
   trailing_html: true # Set to false to remove trailing '.html' from permalinks
-
-baidu_url_submit:
-  count: 1000 ## 提交最新的一个链接
-  host: ekibun.github.io ## 在百度站长平台中注册的域名
-  path: baidu_urls.txt ## 文本文档的地址， 新链接会保存在此文本文档里
 
 # Directory
 source_dir: source
@@ -103,7 +98,5 @@ theme: next
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
-- type: 'git'
-  repository: git@github.com:ekibun/ekibook.git
-  branch: 'gh-pages'
-- type: baidu_url_submitter ## 这是新加的
+- type: git
+  repo: git@gitee.com:ekibun/ekibook.git

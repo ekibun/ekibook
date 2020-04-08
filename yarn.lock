@@ -1406,13 +1406,6 @@ hawk@1.1.1:
     hoek "0.9.x"
     sntp "0.2.x"
 
-hexo-baidu-url-submit@^0.0.6:
-  version "0.0.6"
-  resolved "https://registry.npm.taobao.org/hexo-baidu-url-submit/download/hexo-baidu-url-submit-0.0.6.tgz#2e8df814ceed3420e56cc27fd503f6023256dc6d"
-  integrity sha1-Lo34FM7tNCDlbMJ/1QP2AjJW3G0=
-  dependencies:
-    xmlhttprequest "^1.8.0"
-
 hexo-bunyan@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npm.taobao.org/hexo-bunyan/download/hexo-bunyan-2.0.0.tgz#020d7a51104cc7fe50df9005020c359ac504309e"
@@ -3485,11 +3478,6 @@ xmldom-sre@^0.1.31:
   version "0.1.31"
   resolved "https://registry.npm.taobao.org/xmldom-sre/download/xmldom-sre-0.1.31.tgz#10860d5bab2c603144597d04bf2c4980e98067f4"
   integrity sha1-EIYNW6ssYDFEWX0EvyxJgOmAZ/Q=
-
-xmlhttprequest@^1.8.0:
-  version "1.8.0"
-  resolved "https://registry.npm.taobao.org/xmlhttprequest/download/xmlhttprequest-1.8.0.tgz#67fe075c5c24fef39f9d65f5f7b7fe75171968fc"
-  integrity sha1-Z/4HXFwk/vOfnWX197f+dRcZaPw=
 
 yargs@~3.10.0:
   version "3.10.0"

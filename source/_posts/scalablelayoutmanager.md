@@ -10,6 +10,10 @@ mathjax: true
 
 <!--more-->
 
+先看效果：
+
+![Screenrecorder-2020-04-08-19-39-40-568](scalablelayoutmanager/Screenrecorder-2020-04-08-19-39-40-568.gif)
+
 `onLayoutChildren`太长了懒得看，但layout一定会调用`measureChildWithMargins`和`layoutDecoratedWithMargins`，hook就从这两个方法入手。
 
 首先是`measureChildWithMargins`，这里会测量出需要的宽高，先调用`super`更新`widthUsed`和`heightUsed`，再修改`MeasureSpec`改变子项的大小：

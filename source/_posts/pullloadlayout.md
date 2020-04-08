@@ -11,7 +11,7 @@ tags:
 
 国际惯例先放效果：
 
-![](../images/manga_prev.gif)
+![prev](pullloadlayout/prev.gif)
 
 一开始没搞横向翻页的时候用的是[AnythingPullLayout](https://github.com/TruthKeeper/AnythingPull)，效果还不错，那么轮子就以这个为基础造，沿用它的命名，上一章的叫刷新，下一章的叫加载。
 

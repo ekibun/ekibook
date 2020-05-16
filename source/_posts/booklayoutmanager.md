@@ -211,5 +211,4 @@ companion object {
 }
 ```
 
-[完整代码传送门](https://github.com/ekibun/BangumiPlugin/blob/master/app/src/main/java/soko/ekibun/bangumi/plugins/ui/view/BookLayoutManager.kt)
-
+[完整代码传送门](https://github.com/ekibun/BangumiPlugin/blob/master/app/src/main/java/soko/ekibun/bangumi/plugins/ui/view/book/BookLayoutManager.kt)

@@ -72,4 +72,4 @@ override fun draw(canvas: Canvas) {
 }
 ```
 
-[完整代码传送门](https://github.com/ekibun/Bangumi/blob/master/app/src/main/java/soko/ekibun/bangumi/util/UrlDrawable.kt)
+[完整代码传送门](https://github.com/ekibun/Bangumi/blob/master/app/src/main/java/soko/ekibun/bangumi/util/span/TextViewDrawable.kt)

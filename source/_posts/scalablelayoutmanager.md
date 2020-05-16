@@ -171,4 +171,4 @@ override fun scrollHorizontallyBy(dx: Int, recycler: RecyclerView.Recycler, stat
 
 下一篇在这个的基础上，将横向改成翻页模式。
 
-[完整代码传送门](https://github.com/ekibun/BangumiPlugin/blob/master/app/src/main/java/soko/ekibun/bangumi/plugins/ui/view/BookLayoutManager.kt)
+[完整代码传送门](https://github.com/ekibun/BangumiPlugin/blob/master/app/src/main/java/soko/ekibun/bangumi/plugins/ui/view/book/BookLayoutManager.kt)

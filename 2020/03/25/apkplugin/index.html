@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/ekibook/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/ekibook/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/ekibook/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/ekibook/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/ekibook/css/main.css">
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ekibun.github.io","root":"/ekibook/","scheme":"Pisces","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"manual"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="由于一些不可描述的原因，需要把部分功能从app里独立出来，作为两个独立的apk应用。两个独立的apk进行交互非常麻烦。这里记录一下自己摸索的一个简陋但可行的实现方法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="简陋Android插件化方案">
+<meta property="og:url" content="https://ekibun.github.io/ekibook/2020/03/25/apkplugin/index.html">
+<meta property="og:site_name" content="ekibook">
+<meta property="og:description" content="由于一些不可描述的原因，需要把部分功能从app里独立出来，作为两个独立的apk应用。两个独立的apk进行交互非常麻烦。这里记录一下自己摸索的一个简陋但可行的实现方法。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-03-25T10:02:28.000Z">
+<meta property="article:modified_time" content="2021-03-17T12:40:40.742Z">
+<meta property="article:author" content="ekibun">
+<meta property="article:tag" content="android">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ekibun.github.io/ekibook/2020/03/25/apkplugin/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true
+  };
+</script>
+
+  <title>简陋Android插件化方案 | ekibook</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"] > svg a {
+  fill: blue;
+  stroke: blue;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/ekibook/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ekibook</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/ekibook/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/ekibook/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/ekibook/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ekibun.github.io/ekibook/2020/03/25/apkplugin/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/ekibook/images/avatar.jpg">
+      <meta itemprop="name" content="ekibun">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ekibook">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          简陋Android插件化方案
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-25 18:02:28" itemprop="dateCreated datePublished" datetime="2020-03-25T18:02:28+08:00">2020-03-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-03-17 20:40:40" itemprop="dateModified" datetime="2021-03-17T20:40:40+08:00">2021-03-17</time>
+              </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <html><head></head><body><p>由于一些不可描述的原因，需要把部分功能从app里独立出来，作为两个独立的apk应用。两个独立的apk进行交互非常麻烦。这里记录一下自己摸索的一个简陋但可行的实现方法。</p>
+<a id="more"></a>
+
+<h4 id="插件代码的加载"><a href="#插件代码的加载" class="headerlink" title="插件代码的加载"></a>插件代码的加载</h4><p>首先，为了避免跨进程通信，所有代码都由宿主进程统一加载。</p>
+<p>首先在插件应用留一个单例的类，在<code>Application</code>里实例化这个类，当作插件实例：</p>
+<figure class="highlight kotlin"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">createPluginInstance</span><span class="params">(context: <span class="type">Context</span>)</span></span>: Pair&lt;Context, Any&gt;? {</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">try</span> {</span><br><span class="line">        <span class="keyword">val</span> pluginContext = context.createPackageContext(</span><br><span class="line">            <span class="string">"soko.ekibun.bangumi.plugins"</span>,</span><br><span class="line">            Context.CONTEXT_IGNORE_SECURITY or Context.CONTEXT_INCLUDE_CODE</span><br><span class="line">        )</span><br><span class="line">        <span class="keyword">val</span> pluginClass = pluginContext.classLoader.loadClass(<span class="string">"soko.ekibun.bangumi.plugins.Plugin"</span>)</span><br><span class="line">        pluginContext to pluginClass.getDeclaredConstructor().let {</span><br><span class="line">            it.isAccessible = <span class="literal">true</span></span><br><span class="line">            it.newInstance()</span><br><span class="line">        }</span><br><span class="line">    } <span class="keyword">catch</span> (e: Exception) {</span><br><span class="line">        e.printStackTrace()</span><br><span class="line">        <span class="literal">null</span></span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>然后在<code>Activity.onCreate</code>里用反射调用插件的<code>setupPlugins</code>函数：</p>
+<figure class="highlight kotlin"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">setUpPlugins</span><span class="params">(activity: <span class="type">Activity</span>)</span></span>: <span class="built_in">Boolean</span> {</span><br><span class="line">    <span class="keyword">val</span> pluginInstance = App.<span class="keyword">get</span>(activity).pluginInstance ?: <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">try</span> {</span><br><span class="line">        <span class="keyword">val</span> method =</span><br><span class="line">            pluginInstance.second.javaClass.getMethod(<span class="string">"setUpPlugins"</span>, Activity::<span class="class"><span class="keyword">class</span>.<span class="title">java</span>, <span class="type">Context::class.java)</span></span></span><br><span class="line">        method.invoke(pluginInstance.second, activity, pluginInstance.first)</span><br><span class="line">        <span class="literal">true</span></span><br><span class="line">    } <span class="keyword">catch</span> (e: Exception) {</span><br><span class="line">        e.printStackTrace()</span><br><span class="line">        <span class="literal">false</span></span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>插件就能获得当前的<code>Activity</code>和<code>Context</code>实例：</p>
+<figure class="highlight kotlin"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Keep</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">setUpPlugins</span><span class="params">(activity: <span class="type">Activity</span>, context: <span class="type">Context</span>)</span></span> {</span><br><span class="line">    App.<span class="keyword">init</span>(activity.application, context)</span><br><span class="line">    <span class="keyword">try</span> {</span><br><span class="line">        pluginList[activity.javaClass.name]?.setUpPlugins(WeakReference(activity))</span><br><span class="line">    } <span class="keyword">catch</span> (e: Exception) {</span><br><span class="line">        Log.e(<span class="string">"plugin"</span>, Log.getStackTraceString(e))</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这里根据不同的<code>Activity</code>的名称，加载对应的类去处理。仿照<code>Application</code>模式，在<code>App.init</code>里创建一个全局的<code>App</code>实例，用来保存宿主和自己的上下文：</p>
+<figure class="highlight kotlin"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">App</span></span>(<span class="keyword">val</span> host: Context, <span class="keyword">val</span> plugin: Context) {</span><br><span class="line">    <span class="keyword">val</span> handler = android.os.Handler { <span class="literal">true</span> }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">companion</span> <span class="keyword">object</span> {</span><br><span class="line">        <span class="keyword">val</span> inited <span class="keyword">get</span>() = ::app.isInitialized</span><br><span class="line"></span><br><span class="line">        <span class="keyword">lateinit</span> <span class="keyword">var</span> app: App</span><br><span class="line">        <span class="function"><span class="keyword">fun</span> <span class="title">init</span><span class="params">(host: <span class="type">Context</span>, plugin: <span class="type">Context</span>)</span></span> {</span><br><span class="line">            <span class="keyword">if</span> (!inited) app = App(host, plugin)</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>到这里，就已经能运行插件的代码了，接下来是一些坑和解决的办法。</p>
+<h4 id="加载插件的布局和样式"><a href="#加载插件的布局和样式" class="headerlink" title="加载插件的布局和样式"></a>加载插件的布局和样式</h4><p>由<code>createPackageContext</code>创建的上下文是没有样式的，需要根据<code>Activity</code>的<code>Configuration</code>去创建：</p>
+<figure class="highlight kotlin"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">createThemeContext</span><span class="params">(activityRef: <span class="type">WeakReference</span>&lt;<span class="type">Activity</span>&gt;)</span></span>: Context {</span><br><span class="line">    <span class="keyword">val</span> themeContext = <span class="keyword">object</span> : ContextThemeWrapper(app.plugin, R.style.AppTheme) {</span><br><span class="line">        <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">getApplicationContext</span><span class="params">()</span></span>: Context {</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">this</span></span><br><span class="line">        }</span><br><span class="line"></span><br><span class="line">        <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">getSystemService</span><span class="params">(name: <span class="type">String</span>)</span></span>: Any? {</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">when</span> (name) {</span><br><span class="line">                Context.WINDOW_SERVICE -&gt; activityRef.<span class="keyword">get</span>()?.getSystemService(name)</span><br><span class="line">                <span class="keyword">else</span> -&gt; <span class="keyword">super</span>.getSystemService(name)</span><br><span class="line">            }</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">    activityRef.<span class="keyword">get</span>()?.let { themeContext.applyOverrideConfiguration(it.resources.configuration) }</span><br><span class="line">    <span class="keyword">return</span> themeContext</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<h4 id="调用宿主的函数"><a href="#调用宿主的函数" class="headerlink" title="调用宿主的函数"></a>调用宿主的函数</h4><p>和宿主加载插件一样，可以用反射来调用宿主的函数。直接使用反射有点麻烦，可以创建一个对应类相同的接口，通过<code>Proxy.newProxyInstance</code>进行调用，先写个Wrapper：</p>
+<figure class="highlight kotlin"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="function"><span class="keyword">fun</span> <span class="title">getLoaderClasses</span><span class="params">(classLoader: <span class="type">ClassLoader</span>, classes: <span class="type">Array</span>&lt;<span class="type">out</span> <span class="type">Class</span>&lt;*&gt;&gt;)</span></span>: Array&lt;Class&lt;*&gt;&gt; {</span><br><span class="line">    <span class="keyword">return</span> classes.map {</span><br><span class="line">        <span class="keyword">if</span> (it.isPrimitive || it.classLoader == classLoader) it</span><br><span class="line">        <span class="keyword">else</span> classLoader.loadClass(it.name)</span><br><span class="line">    }.toTypedArray()</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="function"><span class="keyword">fun</span> <span class="title">getMethod</span><span class="params">(clazz: <span class="type">Class</span>&lt;*&gt;, name: <span class="type">String</span>, <span class="keyword">vararg</span> params: <span class="type">Class</span>&lt;*&gt;)</span></span>: Method? {</span><br><span class="line">    <span class="keyword">val</span> loaderParams = getLoaderClasses(clazz.classLoader!!, params)</span><br><span class="line">    <span class="keyword">var</span> type = clazz</span><br><span class="line">    <span class="keyword">var</span> ret: Method? = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">do</span> {</span><br><span class="line">        <span class="keyword">try</span> {</span><br><span class="line">            ret = type.getDeclaredMethod(name, *loaderParams)</span><br><span class="line">        } <span class="keyword">catch</span> (e: NoSuchMethodException) {}</span><br><span class="line">        <span class="keyword">if</span> (ret != <span class="literal">null</span>) <span class="keyword">break</span></span><br><span class="line">        type = type.superclass ?: <span class="keyword">break</span></span><br><span class="line">    } <span class="keyword">while</span> (<span class="literal">true</span>)</span><br><span class="line">    ret?.isAccessible = <span class="literal">true</span></span><br><span class="line">    <span class="keyword">return</span> ret</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="meta">@Suppress(<span class="meta-string">"UNCHECKED_CAST"</span>)</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="type">&lt;T&gt;</span> <span class="title">proxyObject</span><span class="params">(obj: <span class="type">Any</span>?, clazz: <span class="type">Class</span>&lt;<span class="type">T</span>&gt;)</span></span>: T? {</span><br><span class="line">    <span class="keyword">if</span> (clazz.classLoader == <span class="literal">null</span> || obj == <span class="literal">null</span> || obj.javaClass == clazz || !clazz.isInterface)</span><br><span class="line">        <span class="keyword">return</span> obj <span class="keyword">as</span>? T</span><br><span class="line">    <span class="keyword">return</span> Proxy.newProxyInstance(</span><br><span class="line">        clazz.classLoader, arrayOf(clazz)</span><br><span class="line">    ) { _, method, args -&gt;</span><br><span class="line">        getMethod(obj.javaClass, method.name, *method.parameterTypes)?.let {</span><br><span class="line">            it.invoke(obj, *(args ?: arrayOf()).mapIndexed { i, v -&gt;</span><br><span class="line">                proxyObject(v, it.parameterTypes[i])</span><br><span class="line">            }.toTypedArray())</span><br><span class="line">        }?.let { proxyObject(it, method.returnType) }</span><br><span class="line">    } <span class="keyword">as</span>? T</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>例如，若宿主的<code>Application</code>包含<code>remoteAction</code>变量，定义如下接口：</p>
+<figure class="highlight kotlin"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">IApplication</span> </span>{</span><br><span class="line">    <span class="keyword">var</span> remoteAction: (intent: Intent?, flags: <span class="built_in">Int</span>, startId: <span class="built_in">Int</span>) -&gt; <span class="built_in">Unit</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>调用<code>proxyObject(host, IApplication::class.java)</code>，就能像宿主一样访问变量了。</p>
+<h4 id="启动服务"><a href="#启动服务" class="headerlink" title="启动服务"></a>启动服务</h4><p>服务必须要声明在<code>AndroidManifest.xml</code>里，用了个笨方法，先声明：</p>
+<figure class="highlight xml"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">service</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:name</span>=<span class="string">".RemoteService"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:exported</span>=<span class="string">"false"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">service</span>&gt;</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>服务里吧<code>onStartCommand</code>指向<code>Application.remoteAction</code>：</p>
+<figure class="highlight kotlin"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RemoteService</span> : <span class="type">Service</span></span>() {</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onBind</span><span class="params">(intent: <span class="type">Intent</span>)</span></span>: IBinder? {</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span></span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onStartCommand</span><span class="params">(intent: <span class="type">Intent</span>?, flags: <span class="type">Int</span>, startId: <span class="type">Int</span>)</span></span>: <span class="built_in">Int</span> {</span><br><span class="line">        (application <span class="keyword">as</span> App).remoteAction(intent, flags, startId)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.onStartCommand(intent, flags, startId)</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>修改<code>remoteAction</code>变量，再启动<code>RemoteService</code>就能调用自己的代码了。</p>
+</body></html>
+    </div>
+
+    
+    
+    
+      
+  <div class="popular-posts-header">相关文章</div>
+  <ul class="popular-posts">
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="\ekibook\2020\03\19\booklayoutmanager\" rel="bookmark">漫画阅读器（三）翻页LayoutManager</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="\ekibook\2020\04\07\fastscrollview\" rel="bookmark">当快速滚动遇上嵌套滑动</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="\ekibook\2021\03\17\ffmpeg-static-build\" rel="bookmark">windows下静态编译android端ffmpeg</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="\ekibook\2020\04\03\pluginplatform\" rel="bookmark">简陋Android插件化方案（二）插件平台</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="\ekibook\2020\04\11\rhinojsonstringify\" rel="bookmark">Rhino与Android的互操作</a></div>
+    </li>
+  </ul>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/ekibook/tags/android/" rel="tag"><i class="fa fa-tag"></i> android</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/ekibook/2020/03/25/textviewimage/" rel="prev" title="在TextView里面加载动态Drawable">
+      <i class="fa fa-chevron-left"></i> 在TextView里面加载动态Drawable
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/ekibook/2020/04/03/pluginplatform/" rel="next" title="简陋Android插件化方案（二）插件平台">
+      简陋Android插件化方案（二）插件平台 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#插件代码的加载"><span class="nav-text">插件代码的加载</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#加载插件的布局和样式"><span class="nav-text">加载插件的布局和样式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#调用宿主的函数"><span class="nav-text">调用宿主的函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#启动服务"><span class="nav-text">启动服务</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="ekibun"
+      src="/ekibook/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">ekibun</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/ekibook/archives/">
+        
+          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/ekibook/tags/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ekibun" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ekibun" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ekibun</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="站点总字数">59k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">54 分钟</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.1
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.2
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="//cdn.jsdelivr.net/gh/theme-next/theme-next-canvas-ribbon@1/canvas-ribbon.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.1.0/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/velocity-animate@1/velocity.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/velocity-animate@1/velocity.ui.min.js"></script>
+
+<script src="/ekibook/js/utils.js"></script>
+
+<script src="/ekibook/js/motion.js"></script>
+
+
+<script src="/ekibook/js/schemes/pisces.js"></script>
+
+
+<script src="/ekibook/js/next-boot.js"></script>
+
+<script src="/ekibook/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/ekibook/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '',
+      clientSecret: '',
+      repo        : 'ekibook',
+      owner       : 'ekibun',
+      admin       : ['ekibun'],
+      id          : 'da32dfa818c2d072f0f54217bdecf1ab',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

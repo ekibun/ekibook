@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/ekibook/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/ekibook/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/ekibook/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/ekibook/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/ekibook/css/main.css">
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ekibun.github.io","root":"/ekibook/","scheme":"Pisces","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"manual"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="还是漫画阅读器，数据的加载当然用的是RecyclerView，作为一个合格的漫画阅读器，缩放是必备功能了。从头手撸LayoutManager还是太难了，那么就从继承LinearlayoutManager开始。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="漫画阅读器（二）可缩放的LayoutManager">
+<meta property="og:url" content="https://ekibun.github.io/ekibook/2020/03/19/scalablelayoutmanager/index.html">
+<meta property="og:site_name" content="ekibook">
+<meta property="og:description" content="还是漫画阅读器，数据的加载当然用的是RecyclerView，作为一个合格的漫画阅读器，缩放是必备功能了。从头手撸LayoutManager还是太难了，那么就从继承LinearlayoutManager开始。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2020/03/19/scalablelayoutmanager/Screenrecorder-2020-04-08-19-39-40-568.gif">
+<meta property="article:published_time" content="2020-03-19T14:42:48.000Z">
+<meta property="article:modified_time" content="2021-03-17T12:40:40.848Z">
+<meta property="article:author" content="ekibun">
+<meta property="article:tag" content="android">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2020/03/19/scalablelayoutmanager/Screenrecorder-2020-04-08-19-39-40-568.gif">
+
+<link rel="canonical" href="https://ekibun.github.io/ekibook/2020/03/19/scalablelayoutmanager/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true
+  };
+</script>
+
+  <title>漫画阅读器（二）可缩放的LayoutManager | ekibook</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"] > svg a {
+  fill: blue;
+  stroke: blue;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/ekibook/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ekibook</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/ekibook/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/ekibook/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/ekibook/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ekibun.github.io/ekibook/2020/03/19/scalablelayoutmanager/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/ekibook/images/avatar.jpg">
+      <meta itemprop="name" content="ekibun">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ekibook">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          漫画阅读器（二）可缩放的LayoutManager
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-03-19 22:42:48" itemprop="dateCreated datePublished" datetime="2020-03-19T22:42:48+08:00">2020-03-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-03-17 20:40:40" itemprop="dateModified" datetime="2021-03-17T20:40:40+08:00">2021-03-17</time>
+              </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.8k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <html><head></head><body><p>还是漫画阅读器，数据的加载当然用的是<code>RecyclerView</code>，作为一个合格的漫画阅读器，缩放是必备功能了。从头手撸<code>LayoutManager</code>还是太难了，那么就从继承<code>LinearlayoutManager</code>开始。</p>
+<a id="more"></a>
+
+<p>先看效果：</p>
+<p><img data-src="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2020/03/19/scalablelayoutmanager/Screenrecorder-2020-04-08-19-39-40-568.gif" alt="Screenrecorder-2020-04-08-19-39-40-568"></p>
+<p><code>onLayoutChildren</code>太长了懒得看，但layout一定会调用<code>measureChildWithMargins</code>和<code>layoutDecoratedWithMargins</code>，hook就从这两个方法入手。</p>
+<p>首先是<code>measureChildWithMargins</code>，这里会测量出需要的宽高，先调用<code>super</code>更新<code>widthUsed</code>和<code>heightUsed</code>，再修改<code>MeasureSpec</code>改变子项的大小：</p>
+<figure class="highlight kotlin"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> scale = <span class="number">1f</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">measureChildWithMargins</span><span class="params">(child: <span class="type">View</span>, widthUsed: <span class="type">Int</span>, heightUsed: <span class="type">Int</span>)</span></span> {</span><br><span class="line">    <span class="keyword">super</span>.measureChildWithMargins(child, widthUsed, heightUsed)</span><br><span class="line">    <span class="keyword">val</span> lp = child.layoutParams <span class="keyword">as</span> RecyclerView.LayoutParams</span><br><span class="line">    <span class="keyword">val</span> widthSpec = RecyclerView.LayoutManager.getChildMeasureSpec(</span><br><span class="line">        (width * scale).toInt(), widthMode,</span><br><span class="line">        paddingLeft + paddingRight</span><br><span class="line">        + lp.leftMargin + lp.rightMargin + widthUsed, lp.width,</span><br><span class="line">        canScrollHorizontally()</span><br><span class="line">    )</span><br><span class="line">    <span class="keyword">val</span> heightSpec = RecyclerView.LayoutManager.getChildMeasureSpec(</span><br><span class="line">        height, heightMode,</span><br><span class="line">        paddingTop + paddingBottom</span><br><span class="line">        + lp.topMargin + lp.bottomMargin + heightUsed, lp.height,</span><br><span class="line">        canScrollVertically()</span><br><span class="line">    )</span><br><span class="line">    child.measure(widthSpec, heightSpec)</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>然后是<code>layoutDecoratedWithMargins</code>，在这里返回子项的位置，缩放之后移动的偏移量就在这里加上：</p>
+<figure class="highlight kotlin"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> offsetX = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">layoutDecoratedWithMargins</span><span class="params">(child: <span class="type">View</span>, left: <span class="type">Int</span>, top: <span class="type">Int</span>, right: <span class="type">Int</span>, bottom: <span class="type">Int</span>)</span></span> {</span><br><span class="line">    updateContent(child, <span class="keyword">this</span>)</span><br><span class="line">    offsetX = Math.max(<span class="number">0</span>, Math.min(right - left - width, offsetX))</span><br><span class="line">    <span class="keyword">super</span>.layoutDecoratedWithMargins(child, left - offsetX, top, right - offsetX, bottom)</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>接下来就是缩放的手势了，搞个<code>setupWithRecyclerView</code>把操作合在一起，这里用了<code>setOnTouchListener</code>而不是<code>addOnItemTouchListener</code>，是因为不知道怎么拦截能保持子项的点击事件：</p>
+<figure class="highlight kotlin"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> doingScale = <span class="literal">false</span></span><br><span class="line"><span class="keyword">lateinit</span> <span class="keyword">var</span> recyclerView: RecyclerView</span><br><span class="line"></span><br><span class="line"><span class="meta">@SuppressLint(<span class="meta-string">"ClickableViewAccessibility"</span>)</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">setupWithRecyclerView</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">    view: <span class="type">RecyclerView</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">    onTap: (<span class="type">Int</span>, <span class="type">Int</span>) -&gt; <span class="type">Unit</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">    onPress: (<span class="type">View</span>, <span class="type">Int</span>) -&gt; <span class="type">Unit</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">    onTouch: (<span class="type">MotionEvent</span>) -&gt; <span class="type">Unit</span></span></span></span><br><span class="line"><span class="function"><span class="params">)</span></span> {</span><br><span class="line">    recyclerView = view</span><br><span class="line">    view.layoutManager = <span class="keyword">this</span></span><br><span class="line">    <span class="keyword">var</span> beginScale = scale</span><br><span class="line">    <span class="keyword">val</span> scaleGestureDetector =</span><br><span class="line">        ScaleGestureDetector(view.context, <span class="keyword">object</span> : ScaleGestureDetector.SimpleOnScaleGestureListener() {</span><br><span class="line">            <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onScaleBegin</span><span class="params">(detector: <span class="type">ScaleGestureDetector</span>?)</span></span>: <span class="built_in">Boolean</span> {</span><br><span class="line">                beginScale = scale</span><br><span class="line">                currentPos = Math.round(currentPos).toFloat()</span><br><span class="line">                doingScale = <span class="literal">true</span></span><br><span class="line">                requestLayout()</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">super</span>.onScaleBegin(detector)</span><br><span class="line">            }</span><br><span class="line"></span><br><span class="line">            <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onScale</span><span class="params">(detector: <span class="type">ScaleGestureDetector</span>)</span></span>: <span class="built_in">Boolean</span> {</span><br><span class="line">                <span class="keyword">val</span> oldScale = scale</span><br><span class="line">                scale = beginScale * detector.scaleFactor</span><br><span class="line">                scrollOnScale(detector.focusX, detector.focusY, oldScale)</span><br><span class="line">                requestLayout()</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">super</span>.onScale(detector)</span><br><span class="line">            }</span><br><span class="line">        })</span><br><span class="line">    <span class="keyword">val</span> gestureDetector = GestureDetectorCompat(view.context, <span class="keyword">object</span> : GestureDetector.SimpleOnGestureListener() {</span><br><span class="line">        <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onSingleTapConfirmed</span><span class="params">(e: <span class="type">MotionEvent</span>)</span></span>: <span class="built_in">Boolean</span> {</span><br><span class="line">            onTap((e.x).toInt(), (e.y).toInt())</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">super</span>.onSingleTapConfirmed(e)</span><br><span class="line">        }</span><br><span class="line"></span><br><span class="line">        <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onLongPress</span><span class="params">(e: <span class="type">MotionEvent</span>)</span></span> {</span><br><span class="line">            view.findChildViewUnder(e.x, e.y)?.let { onPress(it, view.getChildAdapterPosition(it)) }</span><br><span class="line">            <span class="keyword">super</span>.onLongPress(e)</span><br><span class="line">        }</span><br><span class="line"></span><br><span class="line">        <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onDoubleTap</span><span class="params">(e: <span class="type">MotionEvent</span>)</span></span>: <span class="built_in">Boolean</span> {</span><br><span class="line">            <span class="keyword">val</span> oldScale = scale</span><br><span class="line">            scale = <span class="keyword">if</span> (scale &lt; <span class="number">2f</span>) <span class="number">2f</span> <span class="keyword">else</span> <span class="number">1f</span></span><br><span class="line">            scrollOnScale(e.x, e.y, oldScale)</span><br><span class="line">            requestLayout()</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">super</span>.onDoubleTap(e)</span><br><span class="line">        }</span><br><span class="line">    })</span><br><span class="line">    view.setOnTouchListener { v, event -&gt;</span><br><span class="line">        onTouch(event)</span><br><span class="line">        scaleGestureDetector.onTouchEvent(event)</span><br><span class="line">        gestureDetector.onTouchEvent(event)</span><br><span class="line">        <span class="literal">false</span></span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>这里用<code>ScaleGestureDetector</code>检测缩放手势，同时<code>GestureDetector</code>检测双击，注意长按不能写在子项上不然就不能响应手势了。缩放在改变<code>scale</code>并<code>requestLayout</code>之后，还要滚动一定的距离来保持缩放中心的位置，统一在<code>scrollOnScale</code>函数中处理：</p>
+<figure class="highlight kotlin"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">scrollOnScale</span><span class="params">(x: <span class="type">Float</span>, y: <span class="type">Float</span>, oldScale: <span class="type">Float</span>)</span></span> {</span><br><span class="line">    <span class="keyword">val</span> adapter = recyclerView.adapter</span><br><span class="line">    <span class="keyword">val</span> anchorPos = (<span class="keyword">if</span> (adapter <span class="keyword">is</span> ScalableAdapter) {</span><br><span class="line">        (findFirstVisibleItemPosition()..findLastVisibleItemPosition()).firstOrNull {</span><br><span class="line">            adapter.isItemScalable(it, <span class="keyword">this</span>)</span><br><span class="line">        } ?: {</span><br><span class="line">            scale = <span class="number">1f</span></span><br><span class="line">            <span class="literal">null</span></span><br><span class="line">        }()</span><br><span class="line">    } <span class="keyword">else</span> findFirstVisibleItemPosition()) ?: <span class="keyword">return</span></span><br><span class="line">    recyclerView.scrollBy(((offsetX + x) * (scale - oldScale) / oldScale).toInt(), <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">if</span> (orientation == VERTICAL) findViewByPosition(anchorPos)?.let {</span><br><span class="line">        scrollToPositionWithOffset(anchorPos, (y - (-getDecoratedTop(it) + y) * scale / oldScale).toInt())</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>因为后来又写了小说阅读器，文字的部分不会向图片一样能缩放，就给<code>Adapter</code>带上了一个接口判断对应的子项是否能缩放，如果屏幕中没有能缩放的子项，就把<code>scale</code>还原为1，注意竖向的滚动和横向不一样，是通过调用<code>LinearlayoutManager</code>的<code>scrollToPositionWithOffset</code>实现的。滚动距离按下面的式子算出来：<br><mjx-container class="MathJax" jax="SVG" display="true"><svg style="vertical-align: -6.639ex" xmlns="http://www.w3.org/2000/svg" width="65.766ex" height="14.41ex" role="img" focusable="false" viewBox="0 -3434.5 29068.7 6369"><g stroke="currentColor" fill="currentColor" stroke-width="0" transform="matrix(1 0 0 -1 0 0)"><g data-mml-node="math"><g data-mml-node="mtable"><g data-mml-node="mtr" transform="translate(0, 2684.5)"><g data-mml-node="mtd"><g data-mml-node="mo"><text data-variant="normal" transform="matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">滚</text><text data-variant="normal" transform="translate(900, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">动</text><text data-variant="normal" transform="translate(1800, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">位</text><text data-variant="normal" transform="translate(2700, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">移</text><path data-c="3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z" transform="translate(3600, 0)"></path></g></g><g data-mml-node="mtd" transform="translate(4378, 0)"><g data-mml-node="mi"></g><g data-mml-node="mo" transform="translate(277.8, 0)"><text data-variant="normal" transform="matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">偏</text><text data-variant="normal" transform="translate(900, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">移</text><text data-variant="normal" transform="translate(1800, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">量</text></g><g data-mml-node="mo" transform="translate(3255.6, 0)"><path data-c="2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"></path></g><g data-mml-node="mo" transform="translate(4311.3, 0)"><text data-variant="normal" transform="matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">原</text><text data-variant="normal" transform="translate(900, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">偏</text><text data-variant="normal" transform="translate(1800, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">移</text><text data-variant="normal" transform="translate(2700, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">量</text></g></g></g><g data-mml-node="mtr" transform="translate(0, 685)"><g data-mml-node="mtd" transform="translate(3600, 0)"><g data-mml-node="mo"><path data-c="3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path></g></g><g data-mml-node="mtd" transform="translate(4378, 0)"><g data-mml-node="mrow"><g data-mml-node="mo"><path data-c="28" d="M701 -940Q701 -943 695 -949H664Q662 -947 636 -922T591 -879T537 -818T475 -737T412 -636T350 -511T295 -362T250 -186T221 17T209 251Q209 962 573 1361Q596 1386 616 1405T649 1437T664 1450H695Q701 1444 701 1441Q701 1436 681 1415T629 1356T557 1261T476 1118T400 927T340 675T308 359Q306 321 306 250Q306 -139 400 -430T690 -924Q701 -936 701 -940Z"></path></g><g data-mml-node="mfrac" transform="translate(736, 0)"><g data-mml-node="mrow" transform="translate(220, 676)"><g data-mml-node="mo"><text data-variant="normal" transform="matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">原</text><text data-variant="normal" transform="translate(900, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">偏</text><text data-variant="normal" transform="translate(1800, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">移</text><text data-variant="normal" transform="translate(2700, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">量</text></g><g data-mml-node="mo" transform="translate(3877.8, 0)"><path data-c="2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"></path></g><g data-mml-node="mo" transform="translate(4933.6, 0)"><text data-variant="normal" transform="matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">缩</text><text data-variant="normal" transform="translate(900, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">放</text><text data-variant="normal" transform="translate(1800, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">中</text><text data-variant="normal" transform="translate(2700, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">心</text></g></g><g data-mml-node="mrow" transform="translate(2686.8, -710)"><g data-mml-node="mo"><text data-variant="normal" transform="matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">原</text><text data-variant="normal" transform="translate(900, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">缩</text><text data-variant="normal" transform="translate(1800, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">放</text><text data-variant="normal" transform="translate(2700, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">比</text></g></g><rect width="8733.6" height="60" x="120" y="220"></rect></g><g data-mml-node="mo" transform="translate(9709.6, 0)"><path data-c="D7" d="M630 29Q630 9 609 9Q604 9 587 25T493 118L389 222L284 117Q178 13 175 11Q171 9 168 9Q160 9 154 15T147 29Q147 36 161 51T255 146L359 250L255 354Q174 435 161 449T147 471Q147 480 153 485T168 490Q173 490 175 489Q178 487 284 383L389 278L493 382Q570 459 587 475T609 491Q630 491 630 471Q630 464 620 453T522 355L418 250L522 145Q606 61 618 48T630 29Z"></path></g><g data-mml-node="mo" transform="translate(10765.3, 0)"><text data-variant="normal" transform="matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">现</text><text data-variant="normal" transform="translate(900, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">缩</text><text data-variant="normal" transform="translate(1800, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">放</text><text data-variant="normal" transform="translate(2700, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">比</text></g><g data-mml-node="mo" transform="translate(14643.1, 0)"><path data-c="2B" d="M56 237T56 250T70 270H369V420L370 570Q380 583 389 583Q402 583 409 568V270H707Q722 262 722 250T707 230H409V-68Q401 -82 391 -82H389H387Q375 -82 369 -68V230H70Q56 237 56 250Z"></path></g><g data-mml-node="mo" transform="translate(15698.9, 0)"><text data-variant="normal" transform="matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">缩</text><text data-variant="normal" transform="translate(900, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">放</text><text data-variant="normal" transform="translate(1800, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">中</text><text data-variant="normal" transform="translate(2700, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">心</text></g><g data-mml-node="mo" transform="translate(19298.9, 0)"><path data-c="29" d="M34 1438Q34 1446 37 1448T50 1450H56H71Q73 1448 99 1423T144 1380T198 1319T260 1238T323 1137T385 1013T440 864T485 688T514 485T526 251Q526 134 519 53Q472 -519 162 -860Q139 -885 119 -904T86 -936T71 -949H56Q43 -949 39 -947T34 -937Q88 -883 140 -813Q428 -430 428 251Q428 453 402 628T338 922T245 1146T145 1309T46 1425Q44 1427 42 1429T39 1433T36 1436L34 1438Z"></path></g></g><g data-mml-node="mo" transform="translate(20034.9, 0)"><path data-c="2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"></path></g><g data-mml-node="mo" transform="translate(21090.7, 0)"><text data-variant="normal" transform="matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">原</text><text data-variant="normal" transform="translate(900, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">偏</text><text data-variant="normal" transform="translate(1800, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">移</text><text data-variant="normal" transform="translate(2700, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">量</text></g></g></g><g data-mml-node="mtr" transform="translate(0, -2024.5)"><g data-mml-node="mtd" transform="translate(3600, 0)"><g data-mml-node="mo"><path data-c="3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path></g></g><g data-mml-node="mtd" transform="translate(4378, 0)"><g data-mml-node="mfrac"><g data-mml-node="mrow" transform="translate(220, 710)"><g data-mml-node="mo"><path data-c="28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path></g><g data-mml-node="mo" transform="translate(389, 0)"><text data-variant="normal" transform="matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">原</text><text data-variant="normal" transform="translate(900, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">偏</text><text data-variant="normal" transform="translate(1800, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">移</text><text data-variant="normal" transform="translate(2700, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">量</text></g><g data-mml-node="mo" transform="translate(4266.8, 0)"><path data-c="2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"></path></g><g data-mml-node="mo" transform="translate(5322.6, 0)"><text data-variant="normal" transform="matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">缩</text><text data-variant="normal" transform="translate(900, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">放</text><text data-variant="normal" transform="translate(1800, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">中</text><text data-variant="normal" transform="translate(2700, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">心</text></g><g data-mml-node="mo" transform="translate(8922.6, 0)"><path data-c="29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path></g><g data-mml-node="mo" transform="translate(9533.8, 0)"><path data-c="D7" d="M630 29Q630 9 609 9Q604 9 587 25T493 118L389 222L284 117Q178 13 175 11Q171 9 168 9Q160 9 154 15T147 29Q147 36 161 51T255 146L359 250L255 354Q174 435 161 449T147 471Q147 480 153 485T168 490Q173 490 175 489Q178 487 284 383L389 278L493 382Q570 459 587 475T609 491Q630 491 630 471Q630 464 620 453T522 355L418 250L522 145Q606 61 618 48T630 29Z"></path></g><g data-mml-node="mo" transform="translate(10534, 0)"><path data-c="28" d="M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z"></path></g><g data-mml-node="mo" transform="translate(10923, 0)"><text data-variant="normal" transform="matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">现</text><text data-variant="normal" transform="translate(900, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">缩</text><text data-variant="normal" transform="translate(1800, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">放</text><text data-variant="normal" transform="translate(2700, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">比</text></g><g data-mml-node="mo" transform="translate(14800.8, 0)"><path data-c="2212" d="M84 237T84 250T98 270H679Q694 262 694 250T679 230H98Q84 237 84 250Z"></path></g><g data-mml-node="mo" transform="translate(15856.6, 0)"><text data-variant="normal" transform="matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">原</text><text data-variant="normal" transform="translate(900, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">缩</text><text data-variant="normal" transform="translate(1800, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">放</text><text data-variant="normal" transform="translate(2700, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">比</text></g><g data-mml-node="mo" transform="translate(19456.6, 0)"><path data-c="29" d="M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z"></path></g></g><g data-mml-node="mrow" transform="translate(8342.8, -710)"><g data-mml-node="mo"><text data-variant="normal" transform="matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">原</text><text data-variant="normal" transform="translate(900, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">缩</text><text data-variant="normal" transform="translate(1800, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">放</text><text data-variant="normal" transform="translate(2700, 0) matrix(1 0 0 -1 0 0)" font-size="884px" font-family="serif">比</text></g></g><rect width="20045.6" height="60" x="120" y="220"></rect></g></g></g></g></g></g></svg></mjx-container><br>最后，为了能够横向滚动，要让<code>canScrollHorizontally</code>返回<code>true</code>：</p>
+<figure class="highlight kotlin"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">canScrollVertically</span><span class="params">()</span></span>: <span class="built_in">Boolean</span> = <span class="literal">true</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>为了根据滚动修改offset还要重写<code>scrollHorizontallyBy</code>：</p>
+<figure class="highlight kotlin"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">scrollHorizontallyBy</span><span class="params">(dx: <span class="type">Int</span>, recycler: <span class="type">RecyclerView</span>.<span class="type">Recycler</span>, state: <span class="type">RecyclerView</span>.<span class="type">State</span>)</span></span>: <span class="built_in">Int</span> {</span><br><span class="line">    <span class="keyword">val</span> view = findViewByPosition(downPage)</span><br><span class="line">    <span class="keyword">val</span> ddx = Math.max(</span><br><span class="line">        Math.min(</span><br><span class="line">            dx,</span><br><span class="line">            (width * scale).toInt() - width - offsetX</span><br><span class="line">        ), -offsetX</span><br><span class="line">    )</span><br><span class="line">    offsetX += ddx</span><br><span class="line">    offsetChildrenHorizontal(-ddx)</span><br><span class="line">    view?.translationX = <span class="number">0f</span></span><br><span class="line">    <span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">0</span> until recyclerView.childCount) updateContent(recyclerView.getChildAt(i), <span class="keyword">this</span>)</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">if</span> (scale == <span class="number">1f</span>) dx <span class="keyword">else</span> ddx</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+
+<p>首先根据当前的<code>scale</code>计算能消耗的位移<code>ddx</code>，给<code>offset</code>加上，注意这里没法<code>requestLayout</code>，只能用<code>offsetChildrenHorizontal</code>修改子项的偏移。</p>
+<p>下一篇在这个的基础上，将横向改成翻页模式。</p>
+<p><a href="https://github.com/ekibun/BangumiPlugin/blob/master/app/src/main/java/soko/ekibun/bangumi/plugins/ui/view/book/BookLayoutManager.kt" target="_blank" rel="noopener">完整代码传送门</a></p>
+</body></html>
+    </div>
+
+    
+    
+    
+      
+  <div class="popular-posts-header">相关文章</div>
+  <ul class="popular-posts">
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="\ekibook\2020\03\25\apkplugin\" rel="bookmark">简陋Android插件化方案</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="\ekibook\2020\03\19\booklayoutmanager\" rel="bookmark">漫画阅读器（三）翻页LayoutManager</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="\ekibook\2020\04\07\fastscrollview\" rel="bookmark">当快速滚动遇上嵌套滑动</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="\ekibook\2021\03\17\ffmpeg-static-build\" rel="bookmark">windows下静态编译android端ffmpeg</a></div>
+    </li>
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="\ekibook\2020\04\03\pluginplatform\" rel="bookmark">简陋Android插件化方案（二）插件平台</a></div>
+    </li>
+  </ul>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/ekibook/tags/android/" rel="tag"><i class="fa fa-tag"></i> android</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/ekibook/2020/03/19/pullloadlayout/" rel="prev" title="漫画阅读器（一）造一个可以上下左右滑动加载的容器">
+      <i class="fa fa-chevron-left"></i> 漫画阅读器（一）造一个可以上下左右滑动加载的容器
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/ekibook/2020/03/19/booklayoutmanager/" rel="next" title="漫画阅读器（三）翻页LayoutManager">
+      漫画阅读器（三）翻页LayoutManager <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="ekibun"
+      src="/ekibook/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">ekibun</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/ekibook/archives/">
+        
+          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/ekibook/tags/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ekibun" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ekibun" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ekibun</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="站点总字数">59k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">54 分钟</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.1
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.2
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="//cdn.jsdelivr.net/gh/theme-next/theme-next-canvas-ribbon@1/canvas-ribbon.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.1.0/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/velocity-animate@1/velocity.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/velocity-animate@1/velocity.ui.min.js"></script>
+
+<script src="/ekibook/js/utils.js"></script>
+
+<script src="/ekibook/js/motion.js"></script>
+
+
+<script src="/ekibook/js/schemes/pisces.js"></script>
+
+
+<script src="/ekibook/js/next-boot.js"></script>
+
+<script src="/ekibook/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/ekibook/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '',
+      clientSecret: '',
+      repo        : 'ekibook',
+      owner       : 'ekibun',
+      admin       : ['ekibun'],
+      id          : 'f914e39d6f227dd84563e657fb439496',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

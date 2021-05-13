@@ -13,7 +13,7 @@
     "cheerio": "^1.0.0-rc.3",
     "hexo": "^4.0.0",
     "hexo-deployer-git": "^2.1.0",
-    "hexo-filter-emoji": "^2.2.1",
+    "hexo-filter-emoji": "^2.2.2",
     "hexo-filter-mathjax": "^0.5.0",
     "hexo-generator-archive": "^1.0.0",
     "hexo-generator-category": "^1.0.0",

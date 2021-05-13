@@ -525,7 +525,7 @@
 <p><img data-src="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/05/13/word-eqn/EqnBookMark.png" alt="EqnBookMark"></p>
 <p>然后在交叉引用中选择对应的书签：</p>
 <p><img data-src="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/05/13/word-eqn/EqnRef.png" alt="EqnRef"></p>
-<h3 id="公式字体"><a href="#公式字体" class="headerlink" title="公式字体"></a>公式字体</h3><p>word自带的公式字体全是<code>Cambria Math</code>，要改变字体需要先把公式变成文本再选择字体，对于有编号的公式，全选转成文字会编号把右对齐的<code>#</code>也变成文本：</p>
+<h3 id="公式字体"><a href="#公式字体" class="headerlink" title="公式字体"></a>公式字体</h3><p>word自带的公式字体全是<code>Cambria Math</code>，要改变字体需要先把公式变成文本再选择字体，对于有编号的公式，全选转成文字会把编号右对齐的<code>#</code>也变成文本：</p>
 <p><img data-src="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/05/13/word-eqn/EqnTextAll.png" alt="EqnTextAll"></p>
 <p>要只选择公式的那一部分，单独改成文本格式：</p>
 <p><img data-src="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/05/13/word-eqn/EqnTextEqn.png" alt="EqnTextEqn"></p>

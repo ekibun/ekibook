@@ -158,6 +158,13 @@
   </url>
   
   <url>
+    <loc>https://ekibun.github.io/ekibook/tags/jni/</loc>
+    <lastmod>2021-08-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://ekibun.github.io/ekibook/tags/kotlin-multiplatform/</loc>
     <lastmod>2021-08-04</lastmod>
     <changefreq>daily</changefreq>
@@ -166,13 +173,6 @@
   
   <url>
     <loc>https://ekibun.github.io/ekibook/tags/jetbran-compose/</loc>
-    <lastmod>2021-08-04</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://ekibun.github.io/ekibook/tags/jni/</loc>
     <lastmod>2021-08-04</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>

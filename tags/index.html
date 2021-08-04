@@ -13,11 +13,11 @@
 <link rel="stylesheet" href="/ekibook/css/main.css">
 
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css">
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"ekibun.github.io","root":"/ekibook/","scheme":"Pisces","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"manual"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"ekibun.github.io","root":"/ekibook/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"manual"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
   <meta property="og:type" content="website">
@@ -38,12 +38,13 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false
+    isPost : false,
+    lang   : 'zh-CN'
   };
 </script>
 
   <title>tags | ekibook
-  </title>
+</title>
   
 
 
@@ -209,13 +210,11 @@ mjx-container[display="true"] + br {
 
   <div class="site-meta">
 
-    <div>
-      <a href="/ekibook/" class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">ekibook</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
-    </div>
+    <a href="/ekibook/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ekibook</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
   </div>
 
   <div class="site-nav-right">
@@ -226,22 +225,18 @@ mjx-container[display="true"] + br {
 </div>
 
 
+
+
 <nav class="site-nav">
-  
-  <ul id="menu" class="menu">
+  <ul id="menu" class="main-menu menu">
         <li class="menu-item menu-item-home">
 
-    <a href="/ekibook/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
-
-  </li>
-        <li class="menu-item menu-item-tags">
-
-    <a href="/ekibook/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+    <a href="/ekibook/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/ekibook/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+    <a href="/ekibook/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
       <li class="menu-item menu-item-search">
@@ -249,16 +244,18 @@ mjx-container[display="true"] + br {
         </a>
       </li>
   </ul>
-
 </nav>
-  <div class="site-search">
+
+
+
+  <div class="search-pop-overlay">
     <div class="popup search-popup">
-    <div class="search-header">
+        <div class="search-header">
   <span class="search-icon">
     <i class="fa fa-search"></i>
   </span>
   <div class="search-input-container">
-    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+    <input autocomplete="off" autocapitalize="off"
            placeholder="搜索..." spellcheck="false"
            type="search" class="search-input">
   </div>
@@ -266,12 +263,15 @@ mjx-container[display="true"] + br {
     <i class="fa fa-times-circle"></i>
   </span>
 </div>
-<div id="search-result"></div>
-
-</div>
-<div class="search-pop-overlay"></div>
-
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
   </div>
+</div>
+
+    </div>
+  </div>
+
 </div>
     </header>
 
@@ -291,10 +291,9 @@ mjx-container[display="true"] + br {
   
   
 
-          <div class="content">
+          <div class="content page posts-expand">
             
 
-  <div class="posts-expand">
     
     
     
@@ -320,7 +319,7 @@ mjx-container[display="true"] + br {
               目前共计 7 个标签
             </div>
             <div class="tag-cloud-tags">
-              <a href="/ekibook/tags/android/" style="font-size: 30px; color: #111">android</a> <a href="/ekibook/tags/ffmpeg/" style="font-size: 18px; color: #aaa">ffmpeg</a> <a href="/ekibook/tags/hexo/" style="font-size: 24px; color: #5e5e5e">hexo</a> <a href="/ekibook/tags/jetbran-compose/" style="font-size: 18px; color: #aaa">jetbran compose</a> <a href="/ekibook/tags/jni/" style="font-size: 24px; color: #5e5e5e">jni</a> <a href="/ekibook/tags/kotlin-multiplatform/" style="font-size: 18px; color: #aaa">kotlin multiplatform</a> <a href="/ekibook/tags/word/" style="font-size: 18px; color: #aaa">word</a>
+              <a href="/ekibook/tags/android/" style="font-size: 30px; color: #111">android</a> <a href="/ekibook/tags/ffmpeg/" style="font-size: 12px; color: #ccc">ffmpeg</a> <a href="/ekibook/tags/hexo/" style="font-size: 21px; color: #6f6f6f">hexo</a> <a href="/ekibook/tags/jetbran-compose/" style="font-size: 12px; color: #ccc">jetbran compose</a> <a href="/ekibook/tags/jni/" style="font-size: 21px; color: #6f6f6f">jni</a> <a href="/ekibook/tags/kotlin-multiplatform/" style="font-size: 12px; color: #ccc">kotlin multiplatform</a> <a href="/ekibook/tags/word/" style="font-size: 12px; color: #ccc">word</a>
             </div>
           </div>
         
@@ -334,7 +333,6 @@ mjx-container[display="true"] + br {
     
     
     
-  </div>
 
 
           </div>
@@ -342,7 +340,7 @@ mjx-container[display="true"] + br {
 
 <script>
   window.addEventListener('tabs:register', () => {
-    let activeClass = CONFIG.comments.activeClass;
+    let { activeClass } = CONFIG.comments;
     if (CONFIG.comments.storage) {
       activeClass = localStorage.getItem('comments_active') || activeClass;
     }
@@ -406,7 +404,6 @@ mjx-container[display="true"] + br {
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/ekibook/tags/">
-          
         <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
@@ -414,7 +411,7 @@ mjx-container[display="true"] + br {
 </div>
   <div class="links-of-author motion-element">
       <span class="links-of-author-item">
-        <a href="https://github.com/ekibun" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ekibun" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+        <a href="https://github.com/ekibun" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ekibun" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
       </span>
   </div>
 
@@ -434,17 +431,19 @@ mjx-container[display="true"] + br {
       <div class="footer-inner">
         
 
+        
+
 <div class="copyright">
   
-  &copy; 2020 – 
+  &copy; 
   <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
-    <i class="fa fa-user"></i>
+    <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">ekibun</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
-      <i class="fa fa-area-chart"></i>
+      <i class="fa fa-chart-area"></i>
     </span>
     <span title="站点总字数">60k</span>
     <span class="post-meta-divider">|</span>
@@ -453,10 +452,7 @@ mjx-container[display="true"] + br {
     </span>
     <span title="站点阅读时长">55 分钟</span>
 </div>
-  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v4.2.1
-  </div>
-  <span class="post-meta-divider">|</span>
-  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.2
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
 
         

@@ -20,22 +20,33 @@
     var CONFIG = {"hostname":"ekibun.github.io","root":"/ekibook/","scheme":"Pisces","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":true,"color":"#222","save":"manual"},"fancybox":false,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="网上大部分的左右对齐都是基于重绘实现的，这样TextView自带的选择就不能用了。为了不自己来存Layout的信息，用ReplacementSpan来实现字间距的控制。">
+  <meta name="description" content="截图拼接的需求很多，四年前写的拼图软件出错概率太高，其他的同类软件也都不是很顺手，终于还是捡起了四年前的坑，加上了手动编辑，再也不用担心拼接出错了。为了实现拼地图，这次拼接算法用上了OpenCV，记录下摸索过程。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="用Span实现TextView两端对齐">
-<meta property="og:url" content="https://ekibun.github.io/ekibook/2020/05/17/spanjustify/index.html">
+<meta property="og:title" content="用 OpenCV 进行截图拼接">
+<meta property="og:url" content="https://ekibun.github.io/ekibook/2021/08/04/opencv-stitch/index.html">
 <meta property="og:site_name" content="ekibook">
-<meta property="og:description" content="网上大部分的左右对齐都是基于重绘实现的，这样TextView自带的选择就不能用了。为了不自己来存Layout的信息，用ReplacementSpan来实现字间距的控制。">
+<meta property="og:description" content="截图拼接的需求很多，四年前写的拼图软件出错概率太高，其他的同类软件也都不是很顺手，终于还是捡起了四年前的坑，加上了手动编辑，再也不用担心拼接出错了。为了实现拼地图，这次拼接算法用上了OpenCV，记录下摸索过程。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2020/05/17/spanjustify/image-20200517230159894.png">
-<meta property="article:published_time" content="2020-05-17T15:16:45.000Z">
-<meta property="article:modified_time" content="2021-03-17T12:40:40.981Z">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/08/04/opencv-stitch/test0.jpg">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/08/04/opencv-stitch/grad0.jpg">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/08/04/opencv-stitch/grad1.jpg">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/08/04/opencv-stitch/mask.jpg">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/08/04/opencv-stitch/mask.jpg">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/08/04/opencv-stitch/grad0.jpg">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/08/04/opencv-stitch/diff0.jpg">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/08/04/opencv-stitch/mask.jpg">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/08/04/opencv-stitch/grad1.jpg">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/08/04/opencv-stitch/diff1.jpg">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/08/04/opencv-stitch/test1.jpg">
+<meta property="article:published_time" content="2021-08-04T15:55:07.000Z">
+<meta property="article:modified_time" content="2021-08-04T16:40:28.549Z">
 <meta property="article:author" content="ekibun">
 <meta property="article:tag" content="android">
+<meta property="article:tag" content="jni">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2020/05/17/spanjustify/image-20200517230159894.png">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/08/04/opencv-stitch/test0.jpg">
 
-<link rel="canonical" href="https://ekibun.github.io/ekibook/2020/05/17/spanjustify/">
+<link rel="canonical" href="https://ekibun.github.io/ekibook/2021/08/04/opencv-stitch/">
 
 
 <script id="page-configurations">
@@ -47,7 +58,7 @@
   };
 </script>
 
-  <title>用Span实现TextView两端对齐 | ekibook</title>
+  <title>用 OpenCV 进行截图拼接 | ekibook</title>
   
 
 
@@ -301,7 +312,7 @@ mjx-container[display="true"] + br {
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://ekibun.github.io/ekibook/2020/05/17/spanjustify/">
+    <link itemprop="mainEntityOfPage" href="https://ekibun.github.io/ekibook/2021/08/04/opencv-stitch/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/ekibook/images/avatar.jpg">
@@ -314,7 +325,7 @@ mjx-container[display="true"] + br {
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          用Span实现TextView两端对齐
+          用 OpenCV 进行截图拼接
         </h1>
 
         <div class="post-meta">
@@ -324,14 +335,14 @@ mjx-container[display="true"] + br {
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2020-05-17 23:16:45" itemprop="dateCreated datePublished" datetime="2020-05-17T23:16:45+08:00">2020-05-17</time>
+              <time title="创建时间：2021-08-04 23:55:07" itemprop="dateCreated datePublished" datetime="2021-08-04T23:55:07+08:00">2021-08-04</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-03-17 20:40:40" itemprop="dateModified" datetime="2021-03-17T20:40:40+08:00">2021-03-17</time>
+                <time title="修改时间：2021-08-05 00:40:28" itemprop="dateModified" datetime="2021-08-05T00:40:28+08:00">2021-08-05</time>
               </span>
 
           
@@ -347,14 +358,14 @@ mjx-container[display="true"] + br {
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>3.8k</span>
+              <span>909</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>3 分钟</span>
+              <span>1 分钟</span>
             </span>
 
         </div>
@@ -366,17 +377,49 @@ mjx-container[display="true"] + br {
     <div class="post-body" itemprop="articleBody">
 
       
-        <html><head></head><body><p>网上大部分的左右对齐都是基于重绘实现的，这样<code>TextView</code>自带的选择就不能用了。为了不自己来存<code>Layout</code>的信息，用<code>ReplacementSpan</code>来实现字间距的控制。</p>
+        <html><head></head><body><p>截图拼接的需求很多，四年前写的拼图软件出错概率太高，其他的同类软件也都不是很顺手，终于还是捡起了四年前的坑，加上了手动编辑，再也不用担心拼接出错了。为了实现拼地图，这次拼接算法用上了OpenCV，记录下摸索过程。</p>
 <a id="more"></a>
 
-<p>效果长这样</p>
-<p><img data-src="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2020/05/17/spanjustify/image-20200517230159894.png" alt="image-20200517230159894"></p>
-<p>一开始想直接修改<code>CharacterStyle</code>的<code>TextPaint.setLetterSpacing</code>来实现，但是<strong>TextView在绘制Spanned的时候是逐个字符绘制的</strong>，<code>LetterSpacing</code>在绘制的时候会被取整而对不齐。无奈之下选择用<code>ReplacementSpan</code>自己绘制：</p>
-<figure class="highlight kotlin"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LetterSpacingSpan</span></span>(<span class="keyword">private</span> <span class="keyword">val</span> width: <span class="built_in">Int</span>, <span class="keyword">private</span> <span class="keyword">val</span> spacing: <span class="built_in">Float</span>) : ReplacementSpan() {</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">getSize</span><span class="params">(paint: <span class="type">Paint</span>, text: <span class="type">CharSequence</span>?, start: <span class="type">Int</span>, end: <span class="type">Int</span>, fm: <span class="type">Paint</span>.<span class="type">FontMetricsInt</span>?)</span></span>: <span class="built_in">Int</span> {</span><br><span class="line">        <span class="keyword">return</span> width</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">draw</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">        canvas: <span class="type">Canvas</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">        text: <span class="type">CharSequence</span>?,</span></span></span><br><span class="line"><span class="function"><span class="params">        start: <span class="type">Int</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">        end: <span class="type">Int</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">        x: <span class="type">Float</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">        top: <span class="type">Int</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">        y: <span class="type">Int</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">        bottom: <span class="type">Int</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">        paint: <span class="type">Paint</span></span></span></span><br><span class="line"><span class="function"><span class="params">    )</span></span> {</span><br><span class="line">        paint.letterSpacing</span><br><span class="line">        canvas.drawText(text ?: <span class="string">""</span>, start, end, x + spacing, y.toFloat(), paint)</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<h4 id="Android-工程中导入-OpenCV"><a href="#Android-工程中导入-OpenCV" class="headerlink" title="Android 工程中导入 OpenCV"></a>Android 工程中导入 OpenCV</h4><p>有两种方法，但都要下 <a href="https://github.com/opencv/opencv/releases" target="_blank" rel="noopener">opencv-android-sdk.zip</a>，解压出来放在程序目录，里面的<code>sdk</code>文件夹是一个gradle项目，可以直接里导入工程，然后就可以在java中调用函数了，也就是第一种方法，要注意的是，网传的<code>OpenCVLoader.initAsync</code>方法已被弃用，需要直接用<code>System.loadLibrary("opencv_java4")</code>或<code>OpenCVLoader.initDebug()</code>，<code>build.gradle</code>的注释上写的很详细。</p>
+<p>第二种方法是采用jni静态编译，可以省点体积，<code>build.gradle</code>里同样有详细的说明，网上的方法都过时了，正确方法如下，主要是后面三行：</p>
+<figure class="highlight plain"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">cmake_minimum_required(VERSION 3.6)</span><br><span class="line"></span><br><span class="line">add_library(stitch SHARED stitch.cpp)</span><br><span class="line"></span><br><span class="line">set(OpenCV_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../../opencv/sdk/native/jni)</span><br><span class="line">find_package(OpenCV REQUIRED)</span><br><span class="line">target_link_libraries(stitch ${OpenCV_LIBS} jnigraphics)</span><br></pre></td></tr></tbody></table></figure>
 
-<p>为了保持选择区域，每个字符替换为一个<code>LetterSpacingSpan</code>，在分页的时候计算：</p>
-<figure class="highlight kotlin"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> pageWidth =</span><br><span class="line">    recyclerView.width - referHolder.itemView.content_container.let { it.paddingLeft + it.paddingRight }</span><br><span class="line"><span class="keyword">val</span> titleHeight = <span class="keyword">if</span> (page.index &lt;= <span class="number">1</span>) referHolder.itemView.item_title.let {</span><br><span class="line">    getEpTitle(page.ep).let { content -&gt;</span><br><span class="line">        StaticLayout.Builder.obtain(content, <span class="number">0</span>, content.length, it.paint, pageWidth)</span><br><span class="line">            .setAlignment(Layout.Alignment.ALIGN_NORMAL)</span><br><span class="line">            .setLineSpacing(it.lineSpacingExtra, it.lineSpacingMultiplier)</span><br><span class="line">            .setIncludePad(it.includeFontPadding)</span><br><span class="line">            .setUseLineSpacingFromFallbacks(it.isFallbackLineSpacing)</span><br><span class="line">            .setBreakStrategy(it.breakStrategy)</span><br><span class="line">            .setHyphenationFrequency(it.hyphenationFrequency)</span><br><span class="line">            .setJustificationMode(it.justificationMode)</span><br><span class="line">            .build()</span><br><span class="line">    }.height + it.paddingBottom</span><br><span class="line">} <span class="keyword">else</span> <span class="number">0</span></span><br><span class="line"><span class="keyword">val</span> layout = referHolder.itemView.item_content.let {</span><br><span class="line">    StaticLayout.Builder.obtain(page.content, <span class="number">0</span>, page.content.length, it.paint, pageWidth)</span><br><span class="line">        .setAlignment(Layout.Alignment.ALIGN_NORMAL)</span><br><span class="line">        .setLineSpacing(it.lineSpacingExtra, it.lineSpacingMultiplier)</span><br><span class="line">        .setIncludePad(it.includeFontPadding)</span><br><span class="line">        .setUseLineSpacingFromFallbacks(it.isFallbackLineSpacing)</span><br><span class="line">        .setBreakStrategy(it.breakStrategy)</span><br><span class="line">        .setHyphenationFrequency(it.hyphenationFrequency)</span><br><span class="line">        .setJustificationMode(it.justificationMode)</span><br><span class="line">        .build()</span><br><span class="line">}</span><br><span class="line"><span class="keyword">val</span> pageHeight =</span><br><span class="line">    recyclerView.height - referHolder.itemView.content_container.let { it.paddingTop + it.paddingBottom }</span><br><span class="line"><span class="keyword">var</span> lastTextIndex = <span class="number">0</span></span><br><span class="line"><span class="keyword">var</span> lastLineBottom = <span class="number">0</span></span><br><span class="line"><span class="keyword">var</span> spannableStringBuilder = SpannableStringBuilder()</span><br><span class="line"><span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">0</span> until layout.lineCount) {</span><br><span class="line">    <span class="keyword">val</span> lineEnd = layout.getLineEnd(i)</span><br><span class="line">    <span class="keyword">val</span> lineStart = layout.getLineStart(i)</span><br><span class="line">    <span class="keyword">val</span> visibleEnd = layout.getLineVisibleEnd(i)</span><br><span class="line">    spannableStringBuilder.append(SpannableString(page.content.substring(lineStart, lineEnd)).also {</span><br><span class="line">        <span class="keyword">val</span> textCount = visibleEnd - lineStart - <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> (textCount &lt;= <span class="number">1</span> || it.endsWith(<span class="string">'\n'</span>) || i == layout.lineCount - <span class="number">1</span>) <span class="keyword">return</span><span class="symbol">@also</span></span><br><span class="line">        <span class="keyword">if</span> (widthArray.size &lt; textCount) widthArray = FloatArray(textCount)</span><br><span class="line">        <span class="keyword">val</span> letterSpacing = (pageWidth - layout.getLineWidth(i)) / textCount / <span class="number">2</span></span><br><span class="line">        <span class="keyword">var</span> width = layout.getPrimaryHorizontal(lineStart + <span class="number">1</span>) + letterSpacing</span><br><span class="line">        it.setSpan(LetterSpacingSpan(width.toInt(), <span class="number">0f</span>), <span class="number">0</span>, <span class="number">1</span>, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)</span><br><span class="line">        <span class="keyword">for</span> (c <span class="keyword">in</span> <span class="number">1</span> until textCount) {</span><br><span class="line">            <span class="keyword">val</span> dw = layout.getPrimaryHorizontal(lineStart + c + <span class="number">1</span>) + (<span class="number">2</span> * c + <span class="number">1</span>) * letterSpacing</span><br><span class="line">            it.setSpan(</span><br><span class="line">                LetterSpacingSpan(dw.toInt() - width.toInt(), letterSpacing + (width % <span class="number">1</span>)),</span><br><span class="line">                c,</span><br><span class="line">                c + <span class="number">1</span>,</span><br><span class="line">                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE</span><br><span class="line">            )</span><br><span class="line">            width = dw</span><br><span class="line">        }</span><br><span class="line">        it.setSpan(</span><br><span class="line">            LetterSpacingSpan(pageWidth - width.toInt(), letterSpacing + (width % <span class="number">1</span>)),</span><br><span class="line">            textCount,</span><br><span class="line">            textCount + <span class="number">1</span>,</span><br><span class="line">            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE</span><br><span class="line">        )</span><br><span class="line">    })</span><br><span class="line">    <span class="keyword">val</span> curLineBottom = layout.getLineBottom(i + <span class="number">1</span>) + titleHeight</span><br><span class="line">    <span class="keyword">if</span> (curLineBottom - lastLineBottom &lt; pageHeight) <span class="keyword">continue</span></span><br><span class="line">    ret += PageInfo(</span><br><span class="line">        content = spannableStringBuilder.subSequence(</span><br><span class="line">            <span class="number">0</span>,</span><br><span class="line">            spannableStringBuilder.length - lineEnd + visibleEnd</span><br><span class="line">        ),</span><br><span class="line">        ep = page.ep,</span><br><span class="line">        rawInfo = page,</span><br><span class="line">        rawRange = IntRange(lastTextIndex, visibleEnd)</span><br><span class="line">    )</span><br><span class="line">    lastTextIndex = lineEnd</span><br><span class="line">    lastLineBottom = layout.getLineBottom(i) + titleHeight</span><br><span class="line">    spannableStringBuilder = SpannableStringBuilder()</span><br><span class="line">}</span><br><span class="line">ret += PageInfo(</span><br><span class="line">    content = spannableStringBuilder,</span><br><span class="line">    ep = page.ep,</span><br><span class="line">    rawInfo = page,</span><br><span class="line">    rawRange = IntRange(lastTextIndex, page.content.length)</span><br><span class="line">)</span><br></pre></td></tr></tbody></table></figure>
-
+<h4 id="拼接算法"><a href="#拼接算法" class="headerlink" title="拼接算法"></a>拼接算法</h4><p>主要参考了<a href="https://blog.csdn.net/hadkfhkdh/article/details/87972839" target="_blank" rel="noopener">这篇博客</a>，考虑到截图中存在顶部和底部相同的问题，对算法做了一些调整，这里也记录一下。</p>
+<p>首先直接对原图提取特征点会使得顶部和底部的相同区域出现很强匹配的关系：</p>
+<p><img data-src="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/08/04/opencv-stitch/test0.jpg" alt=""></p>
+<p>首先提取两者的边界信息并做差 (<code>cv.absdiff</code>)，消除重合部分：</p>
+<table>
+<thead>
+<tr>
+<th><img data-src="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/08/04/opencv-stitch/grad0.jpg" alt=""></th>
+<th>-</th>
+<th><img data-src="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/08/04/opencv-stitch/grad1.jpg" alt=""></th>
+<th>=</th>
+<th><img data-src="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/08/04/opencv-stitch/mask.jpg" alt=""></th>
+</tr>
+</thead>
+</table>
+<p>然后对两图取交 (<code>cv.bitwise_and</code>)：</p>
+<table>
+<thead>
+<tr>
+<th><img data-src="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/08/04/opencv-stitch/mask.jpg" alt=""></th>
+<th>&amp;</th>
+<th><img data-src="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/08/04/opencv-stitch/grad0.jpg" alt=""></th>
+<th>=</th>
+<th><img data-src="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/08/04/opencv-stitch/diff0.jpg" alt=""></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><img data-src="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/08/04/opencv-stitch/mask.jpg" alt=""></td>
+<td>&amp;</td>
+<td><img data-src="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/08/04/opencv-stitch/grad1.jpg" alt=""></td>
+<td>=</td>
+<td><img data-src="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/08/04/opencv-stitch/diff1.jpg" alt=""></td>
+</tr>
+</tbody></table>
+<p>看起来效果很不错，用它来提取特征点就能很好地消除重合部分：</p>
+<p><img data-src="https://cdn.jsdelivr.net/gh/ekibun/ekibook@gh-pages/2021/08/04/opencv-stitch/test1.jpg" alt=""></p>
 </body></html>
     </div>
 
@@ -408,6 +451,7 @@ mjx-container[display="true"] + br {
           
           <div class="post-tags">
               <a href="/ekibook/tags/android/" rel="tag"><i class="fa fa-tag"></i> android</a>
+              <a href="/ekibook/tags/jni/" rel="tag"><i class="fa fa-tag"></i> jni</a>
           </div>
 
         
@@ -416,13 +460,10 @@ mjx-container[display="true"] + br {
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/ekibook/2020/05/17/selectablerecyclerview/" rel="prev" title="跨Item文字选择的RecyclerView">
-      <i class="fa fa-chevron-left"></i> 跨Item文字选择的RecyclerView
+    <a href="/ekibook/2021/05/13/word-eqn/" rel="prev" title="Word排版笔记">
+      <i class="fa fa-chevron-left"></i> Word排版笔记
     </a></div>
-      <div class="post-nav-item">
-    <a href="/ekibook/2021/03/17/kmp-with-jni/" rel="next" title="在kotlin multiplatform里使用jni">
-      在kotlin multiplatform里使用jni <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -483,6 +524,7 @@ mjx-container[display="true"] + br {
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#Android-工程中导入-OpenCV"><span class="nav-text">Android 工程中导入 OpenCV</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#拼接算法"><span class="nav-text">拼接算法</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -647,7 +689,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'ekibook',
       owner       : 'ekibun',
       admin       : ['ekibun'],
-      id          : '0a302159c2d3908450474da3f8d11c45',
+      id          : '71b7d37bcd2db31d31f46547792b1487',
         language: 'zh-CN',
       distractionFreeMode: true
     });
